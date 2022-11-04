@@ -1,2 +1,2 @@
 # BIC_CW2
-Conntains 2 folders for implementations of GA and PSO
+Implementation code split into 2 folders containing GA and PSO algo.s
