@@ -3,51 +3,62 @@ import random as rnd
 from optproblems import *
 from optproblems import cec2005 as cec2005
 
-
+#Assesses the Fitness of a particular solution within the population with regards to the problem being optimized
+#This acts as a measure for evaluating different particles, to adjust the velocity of less optimal particles
 def assessFitness(position, problem):
     solution = Individual(position)
     problem.evaluate(solution)
     fitness = solution.objective_values
     return fitness
 
-informant_number = 5
-problem_length = 10
-range_min = -100
-range_max = 100
-swarm_size = 100
-generations = 250
+#Problem Definitions
+problem = Problem(cec2005.F4(problem_length)) #this is the Function being optimized
+problem_length = 10 #number of input variables for the function defining the problem
+range_min = -100 #Minimum value allowed on each axis as defined by the problem
+range_max = 100 #Maximum value allowed on each axis as defined by the problem
 
-time_step = 0.5
-vel_scalar = 0.9
-personal_scalar = 0.1
-informant_scalar = 0.1
-global_scalar = 0.1
+#Hyperperameters
+informant_number = 5 #defines the number of other particles each particle evaluates, when adjusting its velocity
+swarm_size = 100 #Number of particles making up the swarm
+generations = 250 #TODO: good comment for generations.
 
-particle_swarm_pos = list()
-particle_swarm_vel = list()
-particle_swarm_informants = list()
-particle_swarm_bests = list()
-particle_swarm_best_fitness = list()
 
-problem = Problem(cec2005.F4(problem_length))
+time_step = 0.5 #scales the change in position for each particle for each generation.
+vel_scalar = 0.9 #weights the contribution the previous velocity contributes to the new velocity, for each particle
+personal_scalar = 0.1 #weights the contribution of the previous personal best to the new velocity, for each particle
+informant_scalar = 0.1 #weights the contribution of the best informant particle to the new velocity, for each particle
+global_scalar = 0.1 #weights the contribution of the global best particle to the new velocity, for each particle
 
+#stores stuff
+particle_swarm_pos = list() #stores the current position of each particle in the swarm
+particle_swarm_vel = list() #stores the current velocity of each particle in the swarm
+particle_swarm_informants = list() #stores a list of informant indexs for each particle in the swarm
+particle_swarm_bests = list() #stores the best position each particle in the swarm has visited
+particle_swarm_best_fitness = list() #stores the current best fitness value each particle has been evaluated to
+
+#Creates "swarm size" number of particles
+#the information on each "particle" is distributed across the list, referenced by a common index 
 for idx_1 in range(swarm_size):
-    particle_pos = ((np.random.rand(problem_length))*200-100).tolist()
-    particle_vel = ((np.random.rand(problem_length))*20-10).tolist()
+    #TODO David to show Aidan readible rand array function
+    particle_pos = ((np.random.rand(problem_length))*200-100).tolist() #creates a list of length "problem_length" with postion values between -100 and 100
+    particle_vel = ((np.random.rand(problem_length))*20-10).tolist() #creates a list of length "problem_length" with velocity values between -100 and 100
     #particle_vel = ((np.random.rand(problem_length))*2-1).tolist()
     
-    particle_swarm_bests.append(particle_pos)
-    particle_swarm_pos.append(particle_pos)
-    particle_swarm_vel.append(particle_vel)
-    particle_swarm_best_fitness.append(np.inf)
+    particle_swarm_pos.append(particle_pos) #TODO: appropriate comment for this
+    particle_swarm_bests.append(particle_pos) #best swarm positon at t=0 is initial position
+    particle_swarm_vel.append(particle_vel) #TODO: appropriate comment for this
+    particle_swarm_best_fitness.append(np.inf) #particle is yet to be evaluated so best fitness is initialised to infinity
 
+    #creates a list of "informant number" amount of random informants for each particle
     informants = list()
     for idx_2 in range(informant_number):
         informants.append(rnd.randint(0,(swarm_size-1)))
     #end
-
-    particle_swarm_informants.append(informants)
+    
+    particle_swarm_informants.append(informants) #assigns the informant list to each particle
 #end
+
+
 
 best_particle_idx = 0
 best_particle_fitness = np.inf
