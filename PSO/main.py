@@ -1,5 +1,6 @@
 import numpy as np
 import random as rnd
+import matplotlib.pyplot as plt
 from optproblems import *
 from optproblems import cec2005 as cec2005
 
@@ -12,21 +13,21 @@ def assessFitness(position, problem):
     return fitness
 
 #Problem Definitions
-problem = Problem(cec2005.F4(problem_length)) #this is the Function being optimized
+range_max = np.pi #Maximum value allowed on each axis as defined by the problem
+range_min = -np.pi #Minimum value allowed on each axis as defined by the problem
 problem_length = 10 #number of input variables for the function defining the problem
-range_min = -100 #Minimum value allowed on each axis as defined by the problem
-range_max = 100 #Maximum value allowed on each axis as defined by the problem
+problem = Problem(cec2005.F12(problem_length)) #this is the Function being optimized
 
 #Hyperperameters
 informant_number = 5 #defines the number of other particles each particle evaluates, when adjusting its velocity
 swarm_size = 100 #Number of particles making up the swarm
-generations = 250 #TODO: good comment for generations.
+generations = 300 #TODO: good comment for generations.
 
 
 time_step = 0.5 #scales the change in position for each particle for each generation.
 vel_scalar = 0.9 #weights the contribution the previous velocity contributes to the new velocity, for each particle
 personal_scalar = 0.1 #weights the contribution of the previous personal best to the new velocity, for each particle
-informant_scalar = 0.1 #weights the contribution of the best informant particle to the new velocity, for each particle
+informant_scalar = 0.2 #weights the contribution of the best informant particle to the new velocity, for each particle
 global_scalar = 0.1 #weights the contribution of the global best particle to the new velocity, for each particle
 
 #stores stuff
@@ -35,13 +36,17 @@ particle_swarm_vel = list() #stores the current velocity of each particle in the
 particle_swarm_informants = list() #stores a list of informant indexs for each particle in the swarm
 particle_swarm_bests = list() #stores the best position each particle in the swarm has visited
 particle_swarm_best_fitness = list() #stores the current best fitness value each particle has been evaluated to
+generational_fitness_hist = list()
+best_fitness_hist = list()
 
 #Creates "swarm size" number of particles
 #the information on each "particle" is distributed across the list, referenced by a common index 
 for idx_1 in range(swarm_size):
     #TODO David to show Aidan readible rand array function
-    particle_pos = ((np.random.rand(problem_length))*200-100).tolist() #creates a list of length "problem_length" with postion values between -100 and 100
-    particle_vel = ((np.random.rand(problem_length))*20-10).tolist() #creates a list of length "problem_length" with velocity values between -100 and 100
+    #particle_pos = ((np.random.rand(problem_length))*(200)-100).tolist() #creates a list of length "problem_length" with postion values between -100 and 100
+    #particle_vel = ((np.random.rand(problem_length))*20-10).tolist() #creates a list of length "problem_length" with velocity values between -100 and 100
+    particle_pos = ((np.random.rand(problem_length))*(2*np.pi)-np.pi).tolist() #creates a list of length "problem_length" with postion values between -100 and 100
+    particle_vel = ((np.random.rand(problem_length))*0.2*np.pi-0.1*np.pi).tolist() #creates a list of length "problem_length" with velocity values between -100 and 100
     #particle_vel = ((np.random.rand(problem_length))*2-1).tolist()
     
     particle_swarm_pos.append(particle_pos) #TODO: appropriate comment for this
@@ -62,9 +67,11 @@ for idx_1 in range(swarm_size):
 
 best_particle_idx = 0
 best_particle_fitness = np.inf
-
 for gen_idx in range(generations):
-    print("generation: ",gen_idx+1)
+
+    best_generational_fitness = np.inf
+
+    #print("generation: ",gen_idx+1)
     for particle_idx in range(swarm_size):
         particle_pos = particle_swarm_pos[particle_idx]
         particle_fitness = assessFitness(particle_pos,problem)
@@ -77,8 +84,14 @@ for gen_idx in range(generations):
             best_particle_fitness = particle_fitness
             best_particle_idx = particle_idx
         #end
+        if (particle_fitness < best_generational_fitness):
+            best_generational_fitness = particle_fitness
+        #end
 
     #end
+
+    generational_fitness_hist.append(best_generational_fitness)
+    best_fitness_hist.append(best_particle_fitness)
 
     for particle_idx in range(swarm_size):
 
@@ -105,15 +118,19 @@ for gen_idx in range(generations):
 
         #if(particle_idx == swarm_size-1):
             #print("evaluated and updated all particles")
-    print("best fitness idx: ", best_particle_idx)
-    print("best fitness: ", best_particle_fitness)
-    print("generation: ",gen_idx+1, "Fitness: ",best_particle_fitness)
+    #print("best fitness idx: ", best_particle_idx)
+    #print("best fitness: ", best_particle_fitness)
+    #print("generation: ",gen_idx+1, "Fitness: ",best_particle_fitness)
 
     for particle_idx in range(swarm_size):
         new_pos = np.array(particle_swarm_pos[particle_idx]) + time_step*np.array(particle_swarm_vel[particle_idx])
         new_pos = np.clip(new_pos,range_min,range_max)
         particle_swarm_pos[particle_idx] = new_pos.tolist()
     #end
+    if (gen_idx+1 == 1) or (gen_idx+1 == 10) or (gen_idx+1 == 50) or (gen_idx+1 == 100) or (gen_idx+1 == 200) or (gen_idx+1 == 300):
+        print("generation: ", gen_idx+1, " generational Fitness: ", best_generational_fitness, " Best Fitness: ", best_particle_fitness)
+#print(particle_swarm_best_fitness)
 
-print("Best Fitness: ", best_particle_fitness, " at index: ", best_particle_idx)
-print(particle_swarm_best_fitness)
+plt.plot(range(0,generations),generational_fitness_hist)
+plt.plot(range(0,generations),best_fitness_hist)
+plt.show()
