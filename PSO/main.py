@@ -13,10 +13,10 @@ def assessFitness(position, problem):
     return fitness
 
 #Problem Definitions
-range_max = np.pi #Maximum value allowed on each axis as defined by the problem
-range_min = -np.pi #Minimum value allowed on each axis as defined by the problem
+range_max = 100 #Maximum value allowed on each axis as defined by the problem
+range_min = -100 #Minimum value allowed on each axis as defined by the problem
 problem_length = 10 #number of input variables for the function defining the problem
-problem = Problem(cec2005.F12(problem_length)) #this is the Function being optimized
+problem = Problem(cec2005.F4(problem_length)) #this is the Function being optimized
 
 #Hyperperameters
 informant_number = 5 #defines the number of other particles each particle evaluates, when adjusting its velocity
@@ -45,10 +45,10 @@ for idx_1 in range(swarm_size):
     #TODO David to show Aidan readible rand array function
     #particle_pos = ((np.random.rand(problem_length))*(200)-100).tolist() #creates a list of length "problem_length" with postion values between -100 and 100
     #particle_vel = ((np.random.rand(problem_length))*20-10).tolist() #creates a list of length "problem_length" with velocity values between -100 and 100
-    particle_pos = ((np.random.rand(problem_length))*(2*np.pi)-np.pi).tolist() #creates a list of length "problem_length" with postion values between -100 and 100
-    particle_vel = ((np.random.rand(problem_length))*0.2*np.pi-0.1*np.pi).tolist() #creates a list of length "problem_length" with velocity values between -100 and 100
-    #particle_vel = ((np.random.rand(problem_length))*2-1).tolist()
-    
+    particle_pos = ((np.random.rand(problem_length))*(range_max-range_min)-range_max).tolist() #creates a list of length "problem_length" with postion values between range_min and range_max
+    particle_vel = ((np.random.rand(problem_length))*0.1*(range_max-range_min)-0.1*(range_max)).tolist() #creates a list of length "problem_length" with velocity values between 0.1range_min and 0.1range_max
+
+
     particle_swarm_pos.append(particle_pos) #TODO: appropriate comment for this
     particle_swarm_bests.append(particle_pos) #best swarm positon at t=0 is initial position
     particle_swarm_vel.append(particle_vel) #TODO: appropriate comment for this
